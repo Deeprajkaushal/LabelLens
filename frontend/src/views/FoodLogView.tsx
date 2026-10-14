@@ -82,7 +82,7 @@ export const FoodLogView: React.FC = () => {
               type="date"
               value={selectedDate}
               onChange={(e) => setSelectedDate(e.target.value)}
-              style={{ background: 'transparent', border: 'none', color: '#fff', fontSize: '0.85rem', outline: 'none' }}
+              style={{ background: 'transparent', border: 'none', color: 'var(--text-primary)', fontSize: '0.85rem', outline: 'none' }}
             />
           </div>
 
@@ -99,38 +99,38 @@ export const FoodLogView: React.FC = () => {
       {/* Daily Summary Cards */}
       {summary && (
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(130px, 1fr))', gap: '0.75rem', marginBottom: '1.5rem' }}>
-          <div className="glass-card" style={{ padding: '1rem', borderLeft: '4px solid #f59e0b' }}>
+          <div className="glass-card" style={{ padding: '1rem', borderLeft: '4px solid var(--primary)' }}>
             <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>{t.totalLoggedCalories}</div>
-            <div style={{ fontSize: '1.65rem', fontWeight: 800, color: '#f59e0b' }}>
+            <div style={{ fontSize: '1.65rem', fontWeight: 800, color: 'var(--primary)' }}>
               {summary.total_calories} <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>kcal</span>
             </div>
             <div style={{ fontSize: '0.7rem', color: 'var(--text-muted)' }}>{summary.entries_count} logged item{summary.entries_count !== 1 ? 's' : ''}</div>
           </div>
 
-          <div className="glass-card" style={{ padding: '1rem', borderLeft: '4px solid #38bdf8' }}>
+          <div className="glass-card" style={{ padding: '1rem', borderLeft: '4px solid var(--secondary)' }}>
             <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>{t.protein}</div>
-            <div style={{ fontSize: '1.65rem', fontWeight: 800, color: '#38bdf8' }}>
+            <div style={{ fontSize: '1.65rem', fontWeight: 800, color: 'var(--secondary)' }}>
               {summary.total_protein_g} <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>g</span>
             </div>
           </div>
 
-          <div className="glass-card" style={{ padding: '1rem', borderLeft: '4px solid #a78bfa' }}>
+          <div className="glass-card" style={{ padding: '1rem', borderLeft: '4px solid var(--accent)' }}>
             <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>{t.carbohydrates}</div>
-            <div style={{ fontSize: '1.65rem', fontWeight: 800, color: '#a78bfa' }}>
+            <div style={{ fontSize: '1.65rem', fontWeight: 800, color: 'var(--secondary)' }}>
               {summary.total_carbs_g} <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>g</span>
             </div>
           </div>
 
-          <div className="glass-card" style={{ padding: '1rem', borderLeft: '4px solid #f472b6' }}>
+          <div className="glass-card" style={{ padding: '1rem', borderLeft: '4px solid var(--color-warning)' }}>
             <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>{t.totalFat}</div>
-            <div style={{ fontSize: '1.65rem', fontWeight: 800, color: '#f472b6' }}>
+            <div style={{ fontSize: '1.65rem', fontWeight: 800, color: 'var(--color-warning)' }}>
               {summary.total_fat_g} <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>g</span>
             </div>
           </div>
 
-          <div className="glass-card" style={{ padding: '1rem', borderLeft: '4px solid #fcd34d' }}>
+          <div className="glass-card" style={{ padding: '1rem', borderLeft: '4px solid var(--border-card)' }}>
             <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>{t.totalSugars}</div>
-            <div style={{ fontSize: '1.65rem', fontWeight: 800, color: '#fcd34d' }}>
+            <div style={{ fontSize: '1.65rem', fontWeight: 800, color: 'var(--text-primary)' }}>
               {summary.total_sugar_g} <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>g</span>
             </div>
           </div>
@@ -181,7 +181,7 @@ export const FoodLogView: React.FC = () => {
 
                 <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
                   <div style={{ textAlign: 'right' }}>
-                    <span style={{ fontSize: '1.15rem', fontWeight: 800, color: '#f59e0b' }}>
+                    <span style={{ fontSize: '1.15rem', fontWeight: 800, color: 'var(--primary)' }}>
                       {item.calories_consumed.toFixed(1)} kcal
                     </span>
                   </div>

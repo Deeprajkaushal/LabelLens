@@ -122,7 +122,7 @@ export const ScanResultsView: React.FC<ScanResultsViewProps> = ({
             onClick={() => onNavigate('compare', { productA: product })}
             className="btn btn-secondary btn-sm"
           >
-            <GitCompare size={15} color="#38bdf8" />
+            <GitCompare size={15} color="var(--secondary)" />
             Compare This
           </button>
 
@@ -153,7 +153,7 @@ export const ScanResultsView: React.FC<ScanResultsViewProps> = ({
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.35rem' }}>
               <span className="badge badge-source">{product.category || 'Food Product'}</span>
               {product.brand && (
-                <span className="badge badge-calc" style={{ background: 'rgba(255,255,255,0.08)', color: 'var(--text-secondary)' }}>
+                <span className="badge badge-calc" style={{ background: 'var(--bg-surface)', color: 'var(--text-secondary)' }}>
                   Brand: {product.brand}
                 </span>
               )}
@@ -189,9 +189,9 @@ export const ScanResultsView: React.FC<ScanResultsViewProps> = ({
           </div>
 
           {product.energy_kcal && (
-            <div style={{ textAlign: 'right', background: 'rgba(15, 23, 42, 0.7)', padding: '0.75rem 1.25rem', borderRadius: 'var(--radius-md)', border: '1px solid var(--border-subtle)' }}>
+            <div style={{ textAlign: 'right', background: 'var(--bg-surface)', padding: '0.75rem 1.25rem', borderRadius: 'var(--radius-md)', border: '1px solid var(--border-subtle)' }}>
               <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>Energy / Calories</div>
-              <div style={{ fontSize: '1.85rem', fontWeight: 800, color: '#f59e0b', lineHeight: 1 }}>
+              <div style={{ fontSize: '1.85rem', fontWeight: 800, color: 'var(--primary)', lineHeight: 1 }}>
                 {product.energy_kcal} <span style={{ fontSize: '0.9rem', color: 'var(--text-secondary)' }}>kcal</span>
               </div>
               <div style={{ fontSize: '0.7rem', color: 'var(--text-muted)' }}>{product.nutrition_basis || 'per 100g'}</div>
@@ -338,12 +338,12 @@ export const ScanResultsView: React.FC<ScanResultsViewProps> = ({
                     <strong>English:</strong> {ing.explanation_en}
                   </div>
 
-                  <div style={{ fontSize: '0.82rem', color: '#a7f3d0', marginBottom: '0.4rem', lineHeight: 1.5 }}>
+                  <div style={{ fontSize: '0.82rem', color: 'var(--primary)', marginBottom: '0.4rem', lineHeight: 1.5 }}>
                     <strong>हिन्दी:</strong> {ing.explanation_hi}
                   </div>
 
                   {ing.caution && (
-                    <div style={{ fontSize: '0.75rem', color: '#fcd34d', background: 'rgba(245, 158, 11, 0.1)', padding: '0.35rem 0.6rem', borderRadius: 'var(--radius-sm)' }}>
+                    <div style={{ fontSize: '0.75rem', color: 'var(--color-warning)', background: 'rgba(185, 130, 53, 0.1)', padding: '0.35rem 0.6rem', borderRadius: 'var(--radius-sm)' }}>
                       ⚠️ {ing.caution}
                     </div>
                   )}

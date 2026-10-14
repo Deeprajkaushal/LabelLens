@@ -21,7 +21,7 @@ export const ValueCard: React.FC<ValueCardProps> = ({
 
   if (!mrp || !netQtyValue || !netQtyUnit) {
     return (
-      <div className="glass-card" style={{ padding: '1rem', background: 'rgba(30, 41, 59, 0.4)' }}>
+      <div className="glass-card" style={{ padding: '1rem', background: 'var(--bg-surface)' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: 'var(--text-muted)' }}>
           <Info size={16} />
           <span style={{ fontSize: '0.85rem' }}>
@@ -45,10 +45,10 @@ export const ValueCard: React.FC<ValueCardProps> = ({
   const priceBulk = Math.round((mrp / baseQty) * 1000 * 100) / 100;
 
   return (
-    <div className="glass-card" style={{ borderLeft: '4px solid var(--accent-emerald)' }}>
+    <div className="glass-card" style={{ borderLeft: '4px solid var(--primary)' }}>
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.75rem' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-          <Tag size={18} color="var(--accent-emerald)" />
+          <Tag size={18} color="var(--primary)" />
           <h3 style={{ fontSize: '1rem', fontWeight: 700 }}>{t.unitPrice}</h3>
         </div>
         <span className="badge badge-calc">{t.calculated}</span>
@@ -59,7 +59,7 @@ export const ValueCard: React.FC<ValueCardProps> = ({
           <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>
             {isLiquid ? t.pricePer100ml : t.pricePer100g}
           </div>
-          <div style={{ fontSize: '1.25rem', fontWeight: 800, color: 'var(--accent-emerald-light)' }}>
+          <div style={{ fontSize: '1.25rem', fontWeight: 800, color: 'var(--primary)' }}>
             ₹{price100.toFixed(2)}
           </div>
           <div style={{ fontSize: '0.7rem', color: 'var(--text-muted)' }}>per {unit100}</div>
@@ -69,14 +69,14 @@ export const ValueCard: React.FC<ValueCardProps> = ({
           <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>
             {isLiquid ? t.pricePerLitre : t.pricePerKg}
           </div>
-          <div style={{ fontSize: '1.25rem', fontWeight: 800, color: '#38bdf8' }}>
+          <div style={{ fontSize: '1.25rem', fontWeight: 800, color: 'var(--secondary)' }}>
             ₹{priceBulk.toFixed(2)}
           </div>
           <div style={{ fontSize: '0.7rem', color: 'var(--text-muted)' }}>per {unitBulk}</div>
         </div>
       </div>
 
-      <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', background: 'rgba(0,0,0,0.2)', padding: '0.5rem 0.75rem', borderRadius: 'var(--radius-sm)' }}>
+      <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', background: 'var(--bg-surface)', padding: '0.5rem 0.75rem', borderRadius: 'var(--radius-sm)' }}>
         <strong>Formula:</strong> ₹{mrp.toFixed(2)} ÷ {baseQty} {baseUnit} × 100 = ₹{price100.toFixed(2)} / {unit100}
       </div>
     </div>

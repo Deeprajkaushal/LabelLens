@@ -98,7 +98,7 @@ export const ComparisonView: React.FC<ComparisonViewProps> = ({
         <ProductSlotInput
           slotId="A"
           slotTitle="Product A (Primary)"
-          accentColor="#10b981"
+          accentColor="#245B4A"
           currentProduct={productA}
           onProductChange={(p) => setProductA(p)}
           savedProductsList={savedProducts}
@@ -107,7 +107,7 @@ export const ComparisonView: React.FC<ComparisonViewProps> = ({
         <ProductSlotInput
           slotId="B"
           slotTitle="Product B (Comparison)"
-          accentColor="#06b6d4"
+          accentColor="#292D32"
           currentProduct={productB}
           onProductChange={(p) => setProductB(p)}
           savedProductsList={savedProducts}
@@ -146,7 +146,7 @@ export const ComparisonView: React.FC<ComparisonViewProps> = ({
         )}
 
         {compareError && (
-          <div style={{ color: '#fda4af', fontSize: '0.82rem', marginTop: '0.75rem' }}>
+          <div style={{ color: 'var(--color-error)', fontSize: '0.82rem', marginTop: '0.75rem' }}>
             ⚠️ {compareError}
           </div>
         )}
@@ -158,11 +158,11 @@ export const ComparisonView: React.FC<ComparisonViewProps> = ({
           className="glass-card"
           style={{
             marginBottom: '1.5rem',
-            borderLeft: '4px solid var(--accent-amber)',
-            background: 'rgba(245, 158, 11, 0.1)',
+            borderLeft: '4px solid var(--color-warning)',
+            background: 'rgba(185, 130, 53, 0.1)',
           }}
         >
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: '#fcd34d', fontWeight: 700 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: 'var(--color-warning)', fontWeight: 700 }}>
             <AlertTriangle size={18} />
             <span>Unit Notice: Unlike Commodity Formats</span>
           </div>
@@ -204,8 +204,8 @@ export const ComparisonView: React.FC<ComparisonViewProps> = ({
                 <thead>
                   <tr>
                     <th>Metric</th>
-                    <th style={{ color: 'var(--accent-emerald-light)' }}>{compareResult.product_a_name}</th>
-                    <th style={{ color: '#38bdf8' }}>{compareResult.product_b_name}</th>
+                    <th style={{ color: 'var(--primary)' }}>{compareResult.product_a_name}</th>
+                    <th style={{ color: 'var(--secondary)' }}>{compareResult.product_b_name}</th>
                     <th>Difference / Advantage</th>
                   </tr>
                 </thead>
@@ -251,8 +251,8 @@ export const ComparisonView: React.FC<ComparisonViewProps> = ({
                 <thead>
                   <tr>
                     <th>Nutrient</th>
-                    <th style={{ color: 'var(--accent-emerald-light)' }}>{compareResult.product_a_name}</th>
-                    <th style={{ color: '#38bdf8' }}>{compareResult.product_b_name}</th>
+                    <th style={{ color: 'var(--primary)' }}>{compareResult.product_a_name}</th>
+                    <th style={{ color: 'var(--secondary)' }}>{compareResult.product_b_name}</th>
                     <th>Difference</th>
                   </tr>
                 </thead>
@@ -260,10 +260,10 @@ export const ComparisonView: React.FC<ComparisonViewProps> = ({
                   {compareResult.nutrition_rows.map((row, idx) => (
                     <tr key={idx}>
                       <td style={{ fontWeight: 600 }}>{row.metric} ({row.unit})</td>
-                      <td style={{ fontWeight: 700, color: row.favorable_indicator === 'a' ? 'var(--accent-emerald-light)' : 'inherit' }}>
+                      <td style={{ fontWeight: 700, color: row.favorable_indicator === 'a' ? 'var(--primary)' : 'inherit' }}>
                         {row.val_a_display}
                       </td>
-                      <td style={{ fontWeight: 700, color: row.favorable_indicator === 'b' ? '#38bdf8' : 'inherit' }}>
+                      <td style={{ fontWeight: 700, color: row.favorable_indicator === 'b' ? 'var(--secondary)' : 'inherit' }}>
                         {row.val_b_display}
                       </td>
                       <td>
@@ -294,8 +294,8 @@ export const ComparisonView: React.FC<ComparisonViewProps> = ({
               Allergen Advice Statements
             </h3>
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: '1rem' }}>
-              <div style={{ background: 'var(--bg-surface)', padding: '0.85rem', borderRadius: 'var(--radius-md)', border: '1px solid rgba(16, 185, 129, 0.3)' }}>
-                <div style={{ fontWeight: 700, fontSize: '0.85rem', color: 'var(--accent-emerald-light)', marginBottom: '0.25rem' }}>
+              <div style={{ background: 'var(--bg-surface)', padding: '0.85rem', borderRadius: 'var(--radius-md)', border: '1px solid rgba(36, 91, 74, 0.25)' }}>
+                <div style={{ fontWeight: 700, fontSize: '0.85rem', color: 'var(--primary)', marginBottom: '0.25rem' }}>
                   {compareResult.product_a_name}
                 </div>
                 <div style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>
@@ -303,8 +303,8 @@ export const ComparisonView: React.FC<ComparisonViewProps> = ({
                 </div>
               </div>
 
-              <div style={{ background: 'var(--bg-surface)', padding: '0.85rem', borderRadius: 'var(--radius-md)', border: '1px solid rgba(6, 182, 212, 0.3)' }}>
-                <div style={{ fontWeight: 700, fontSize: '0.85rem', color: '#38bdf8', marginBottom: '0.25rem' }}>
+              <div style={{ background: 'var(--bg-surface)', padding: '0.85rem', borderRadius: 'var(--radius-md)', border: '1px solid rgba(41, 45, 50, 0.2)' }}>
+                <div style={{ fontWeight: 700, fontSize: '0.85rem', color: 'var(--secondary)', marginBottom: '0.25rem' }}>
                   {compareResult.product_b_name}
                 </div>
                 <div style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>

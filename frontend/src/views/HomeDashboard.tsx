@@ -97,7 +97,7 @@ export const HomeDashboard: React.FC<HomeDashboardProps> = ({
               className="btn btn-secondary"
               style={{ padding: '0.75rem 1.25rem' }}
             >
-              <GitCompare size={18} color="#38bdf8" />
+              <GitCompare size={18} color="var(--secondary)" />
               {t.navCompare}
             </button>
           </div>
@@ -118,7 +118,7 @@ export const HomeDashboard: React.FC<HomeDashboardProps> = ({
               100% offline, verified demo packages with complete nutrition tables, allergen proofs, and prices.
             </p>
           </div>
-          <span className="badge badge-source" style={{ background: 'rgba(245, 158, 11, 0.15)', color: '#fcd34d', borderColor: 'rgba(245, 158, 11, 0.3)' }}>
+          <span className="badge badge-source" style={{ background: 'rgba(185, 130, 53, 0.1)', color: 'var(--color-warning)', borderColor: 'rgba(185, 130, 53, 0.25)' }}>
             Offline Ready
           </span>
         </div>
@@ -136,7 +136,7 @@ export const HomeDashboard: React.FC<HomeDashboardProps> = ({
                   <span className="badge badge-source" style={{ fontSize: '0.68rem' }}>
                     {prod.category}
                   </span>
-                  <span style={{ fontSize: '0.85rem', fontWeight: 700, color: 'var(--accent-emerald-light)' }}>
+                  <span style={{ fontSize: '0.85rem', fontWeight: 700, color: 'var(--primary)' }}>
                     ₹{prod.mrp?.toFixed(2)}
                   </span>
                 </div>
@@ -158,17 +158,17 @@ export const HomeDashboard: React.FC<HomeDashboardProps> = ({
                 </div>
 
                 {prod.allergens_detected && prod.allergens_detected.length > 0 && (
-                  <div style={{ fontSize: '0.72rem', color: '#fda4af', marginBottom: '0.5rem' }}>
+                  <div style={{ fontSize: '0.72rem', color: 'var(--color-error)', marginBottom: '0.5rem' }}>
                     ⚠️ Contains: {prod.allergens_detected.map((a) => a.allergen).join(', ')}
                   </div>
                 )}
               </div>
 
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', paddingTop: '0.75rem', borderTop: '1px solid var(--border-subtle)', marginTop: '0.5rem' }}>
-                <span style={{ fontSize: '0.8rem', color: 'var(--accent-emerald-light)', fontWeight: 600 }}>
+                <span style={{ fontSize: '0.8rem', color: 'var(--primary)', fontWeight: 600 }}>
                   Explore Full Label & Calculator
                 </span>
-                <ArrowRight size={16} color="var(--accent-emerald-light)" />
+                <ArrowRight size={16} color="var(--primary)" />
               </div>
             </div>
           ))}
@@ -187,8 +187,8 @@ export const HomeDashboard: React.FC<HomeDashboardProps> = ({
             className="glass-card interactive"
             style={{ cursor: 'pointer' }}
           >
-            <div style={{ width: 42, height: 42, borderRadius: 'var(--radius-md)', background: 'rgba(16, 185, 129, 0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '0.75rem' }}>
-              <Scan size={22} color="var(--accent-emerald)" />
+            <div style={{ width: 42, height: 42, borderRadius: 'var(--radius-md)', background: 'rgba(36, 91, 74, 0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '0.75rem' }}>
+              <Scan size={22} color="var(--primary)" />
             </div>
             <h3 style={{ fontSize: '1.05rem', fontWeight: 700, marginBottom: '0.3rem' }}>
               {t.navScan}
@@ -203,8 +203,8 @@ export const HomeDashboard: React.FC<HomeDashboardProps> = ({
             className="glass-card interactive"
             style={{ cursor: 'pointer' }}
           >
-            <div style={{ width: 42, height: 42, borderRadius: 'var(--radius-md)', background: 'rgba(245, 158, 11, 0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '0.75rem' }}>
-              <Calculator size={22} color="#f59e0b" />
+            <div style={{ width: 42, height: 42, borderRadius: 'var(--radius-md)', background: 'rgba(185, 130, 53, 0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '0.75rem' }}>
+              <Calculator size={22} color="var(--color-warning)" />
             </div>
             <h3 style={{ fontSize: '1.05rem', fontWeight: 700, marginBottom: '0.3rem' }}>
               {t.navCalculator}
@@ -219,8 +219,8 @@ export const HomeDashboard: React.FC<HomeDashboardProps> = ({
             className="glass-card interactive"
             style={{ cursor: 'pointer' }}
           >
-            <div style={{ width: 42, height: 42, borderRadius: 'var(--radius-md)', background: 'rgba(6, 182, 212, 0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '0.75rem' }}>
-              <GitCompare size={22} color="#06b6d4" />
+            <div style={{ width: 42, height: 42, borderRadius: 'var(--radius-md)', background: 'rgba(41, 45, 50, 0.08)', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '0.75rem' }}>
+              <GitCompare size={22} color="var(--secondary)" />
             </div>
             <h3 style={{ fontSize: '1.05rem', fontWeight: 700, marginBottom: '0.3rem' }}>
               {t.navCompare}
@@ -235,8 +235,8 @@ export const HomeDashboard: React.FC<HomeDashboardProps> = ({
             className="glass-card interactive"
             style={{ cursor: 'pointer' }}
           >
-            <div style={{ width: 42, height: 42, borderRadius: 'var(--radius-md)', background: 'rgba(99, 102, 241, 0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '0.75rem' }}>
-              <CalendarDays size={22} color="#818cf8" />
+            <div style={{ width: 42, height: 42, borderRadius: 'var(--radius-md)', background: 'rgba(36, 91, 74, 0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '0.75rem' }}>
+              <CalendarDays size={22} color="var(--primary)" />
             </div>
             <h3 style={{ fontSize: '1.05rem', fontWeight: 700, marginBottom: '0.3rem' }}>
               {t.navFoodLog}
@@ -251,8 +251,8 @@ export const HomeDashboard: React.FC<HomeDashboardProps> = ({
             className="glass-card interactive"
             style={{ cursor: 'pointer' }}
           >
-            <div style={{ width: 42, height: 42, borderRadius: 'var(--radius-md)', background: 'rgba(236, 72, 153, 0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '0.75rem' }}>
-              <BookOpen size={22} color="#f472b6" />
+            <div style={{ width: 42, height: 42, borderRadius: 'var(--radius-md)', background: 'rgba(143, 169, 154, 0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '0.75rem' }}>
+              <BookOpen size={22} color="var(--secondary)" />
             </div>
             <h3 style={{ fontSize: '1.05rem', fontWeight: 700, marginBottom: '0.3rem' }}>
               {t.navIngredients}
@@ -267,8 +267,8 @@ export const HomeDashboard: React.FC<HomeDashboardProps> = ({
             className="glass-card interactive"
             style={{ cursor: 'pointer' }}
           >
-            <div style={{ width: 42, height: 42, borderRadius: 'var(--radius-md)', background: 'rgba(244, 63, 94, 0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '0.75rem' }}>
-              <BellRing size={22} color="#fb7185" />
+            <div style={{ width: 42, height: 42, borderRadius: 'var(--radius-md)', background: 'rgba(181, 71, 71, 0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '0.75rem' }}>
+              <BellRing size={22} color="var(--color-error)" />
             </div>
             <h3 style={{ fontSize: '1.05rem', fontWeight: 700, marginBottom: '0.3rem' }}>
               {t.navReminders}
@@ -281,9 +281,9 @@ export const HomeDashboard: React.FC<HomeDashboardProps> = ({
       </section>
 
       {/* Trust & Evidence Notice */}
-      <section className="glass-card" style={{ padding: '1.25rem', background: 'rgba(15, 23, 42, 0.6)' }}>
+      <section className="glass-card" style={{ padding: '1.25rem' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-          <ShieldCheck size={26} color="var(--accent-emerald)" />
+          <ShieldCheck size={26} color="var(--primary)" />
           <div>
             <h4 style={{ fontSize: '0.95rem', fontWeight: 700 }}>
               Honest Data & Evidence Guarantee
