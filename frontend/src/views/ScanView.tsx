@@ -211,7 +211,7 @@ export const ScanView: React.FC<ScanViewProps> = ({ onAnalysisComplete, onNaviga
 
       {/* OCR Action & Progress Bar */}
       {images.length > 0 && (
-        <div className="glass-card" style={{ marginBottom: '1.5rem', background: 'rgba(15, 23, 42, 0.7)' }}>
+        <div className="glass-card" style={{ marginBottom: '1.5rem' }}>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '1rem', marginBottom: '0.75rem' }}>
             <div>
               <h3 style={{ fontSize: '1rem', fontWeight: 700 }}>Step 2: Run Browser-Side OCR</h3>
@@ -245,12 +245,12 @@ export const ScanView: React.FC<ScanViewProps> = ({ onAnalysisComplete, onNaviga
                 <span>{ocrProgress.status}</span>
                 <span>{Math.round(ocrProgress.progress * 100)}%</span>
               </div>
-              <div style={{ width: '100%', height: '6px', background: '#334155', borderRadius: '3px', overflow: 'hidden' }}>
+              <div style={{ width: '100%', height: '6px', background: 'var(--border-subtle)', borderRadius: '3px', overflow: 'hidden' }}>
                 <div
                   style={{
                     width: `${Math.min(100, Math.round(ocrProgress.progress * 100))}%`,
                     height: '100%',
-                    background: 'linear-gradient(90deg, #10b981, #06b6d4)',
+                    background: 'var(--primary)',
                     transition: 'width 0.2s ease',
                   }}
                 />
@@ -309,7 +309,7 @@ export const ScanView: React.FC<ScanViewProps> = ({ onAnalysisComplete, onNaviga
         />
 
         {errorMessage && (
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginTop: '0.75rem', color: '#fda4af', fontSize: '0.8rem' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginTop: '0.75rem', color: 'var(--color-error)', fontSize: '0.8rem' }}>
             <AlertCircle size={16} />
             <span>{errorMessage}</span>
           </div>

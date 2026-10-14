@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { Camera, Upload, X, RefreshCw, CheckCircle2, Image as ImageIcon } from 'lucide-react';
 import { useLanguage } from '../i18n';
 
@@ -14,58 +14,157 @@ export const CameraCapture: React.FC<CameraCaptureProps> = ({ onImagesReady, isP
   const [cameraError, setCameraError] = useState<string | null>(null);
 
   const videoRef = useRef<HTMLVideoElement | null>(null);
+  const streamRef = useRef<MediaStream | null>(null);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
 
-  // Stop camera when unmounting
-  useEffect(() => {
-    return () => {
-      stopCamera();
-    };
-  }, []);
-
-  const startCamera = async () => {
-    setCameraError(null);
-    try {
-      const stream = await navigator.mediaDevices.getUserMedia({
-        video: { facingMode: 'environment', width: { ideal: 1920 }, height: { ideal: 1080 } },
+  // Stop camera tracks cleanly
+  const stopCamera = useCallback(() => {
+    if (streamRef.current) {
+      streamRef.current.getTracks().forEach((track) => {
+        try {
+          track.stop();
+        } catch (e) {
+          console.warn('Error stopping camera track:', e);
+        }
       });
-      setIsCameraActive(true);
-      if (videoRef.current) {
-        videoRef.current.srcObject = stream;
-        videoRef.current.play();
-      }
-    } catch (err: any) {
-      console.warn('Camera access not available or denied:', err);
-      setCameraError('Camera access not granted or not available. Use file upload below.');
-      setIsCameraActive(false);
+      streamRef.current = null;
     }
-  };
-
-  const stopCamera = () => {
-    if (videoRef.current && videoRef.current.srcObject) {
-      const stream = videoRef.current.srcObject as MediaStream;
-      stream.getTracks().forEach((track) => track.stop());
+    if (videoRef.current) {
       videoRef.current.srcObject = null;
     }
     setIsCameraActive(false);
+  }, []);
+
+  // Stop all camera media tracks when component unmounts or user switches away/tabs
+  useEffect(() => {
+    const handleVisibilityChange = () => {
+      if (document.hidden) {
+        stopCamera();
+      }
+    };
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    return () => {
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+      stopCamera();
+    };
+  }, [stopCamera]);
+
+  // Video element callback ref to attach stream directly upon element mounting
+  const setVideoRef = useCallback((node: HTMLVideoElement | null) => {
+    videoRef.current = node;
+    if (node && streamRef.current) {
+      node.srcObject = streamRef.current;
+      node.play().catch((err) => {
+        console.warn('Camera video playback error:', err);
+      });
+    }
+  }, []);
+
+  const handleCameraError = (err: any) => {
+    console.warn('Camera access error:', err);
+    stopCamera();
+    if (err.name === 'NotAllowedError' || err.name === 'PermissionDeniedError') {
+      setCameraError('Camera permission was denied. Please allow camera permissions in your browser settings to scan products.');
+    } else if (err.name === 'NotFoundError' || err.name === 'DevicesNotFoundError') {
+      setCameraError('No camera device found on this system. Please connect a camera or use the image upload option.');
+    } else if (err.name === 'NotReadableError' || err.name === 'TrackStartError') {
+      setCameraError('Camera is already in use by another application or tab. Please close other camera apps and retry.');
+    } else if (err.name === 'OverconstrainedError' || err.name === 'ConstraintNotSatisfiedError') {
+      setCameraError('The requested camera settings could not be satisfied by your device. Please use file upload.');
+    } else if (err.name === 'SecurityError') {
+      setCameraError('Camera access requires HTTPS in production. Please access this application via HTTPS.');
+    } else {
+      setCameraError(err.message || 'Unable to access device camera. Please check browser permissions or use file upload.');
+    }
+  };
+
+  const startCamera = async () => {
+    setCameraError(null);
+
+    // 1. Check for secure context (HTTPS required in production, localhost allowed in dev)
+    if (typeof window !== 'undefined' && !window.isSecureContext && window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1') {
+      setCameraError('Camera access requires a secure connection (HTTPS). Please ensure you are accessing this application over HTTPS.');
+      return;
+    }
+
+    // 2. Check for browser mediaDevices support
+    if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+      setCameraError('Camera access is not supported by your browser or environment. Please use file upload below.');
+      return;
+    }
+
+    // Stop existing stream if active
+    if (streamRef.current) {
+      stopCamera();
+    }
+
+    try {
+      let stream: MediaStream;
+      try {
+        // Request mobile rear camera using facingMode: "environment" with ideal fallback
+        stream = await navigator.mediaDevices.getUserMedia({
+          video: {
+            facingMode: { ideal: 'environment' },
+            width: { ideal: 1920 },
+            height: { ideal: 1080 },
+          },
+          audio: false,
+        });
+      } catch (constraintErr: any) {
+        if (constraintErr.name === 'OverconstrainedError' || constraintErr.name === 'ConstraintNotSatisfiedError') {
+          // Fallback to basic camera constraints if environment rear camera is not available
+          stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: false });
+        } else {
+          throw constraintErr;
+        }
+      }
+
+      streamRef.current = stream;
+      setIsCameraActive(true);
+
+      // If video ref is already in DOM, bind immediately
+      if (videoRef.current) {
+        videoRef.current.srcObject = stream;
+        videoRef.current.play().catch((playErr) => {
+          console.warn('Camera video play failed:', playErr);
+        });
+      }
+    } catch (err: any) {
+      handleCameraError(err);
+    }
   };
 
   const capturePhoto = () => {
     if (!videoRef.current) return;
+    const video = videoRef.current;
+    const width = video.videoWidth || 1280;
+    const height = video.videoHeight || 720;
+
+    if (width === 0 || height === 0) {
+      setCameraError('Camera stream is still initializing. Please wait a moment and try capturing again.');
+      return;
+    }
+
     const canvas = document.createElement('canvas');
-    canvas.width = videoRef.current.videoWidth || 1280;
-    canvas.height = videoRef.current.videoHeight || 720;
+    canvas.width = width;
+    canvas.height = height;
     const ctx = canvas.getContext('2d');
     if (ctx) {
-      ctx.drawImage(videoRef.current, 0, 0, canvas.width, canvas.height);
+      ctx.drawImage(video, 0, 0, width, height);
       const dataUrl = canvas.toDataURL('image/jpeg', 0.92);
-      const newImg = {
-        dataUrl,
-        name: `Camera-Snap-${images.length + 1}.jpg`,
-      };
-      const updated = [...images, newImg];
-      setImages(updated);
-      onImagesReady(updated);
+
+      canvas.toBlob((blob) => {
+        const fileName = `Camera-Snap-${Date.now()}-${images.length + 1}.jpg`;
+        const file = blob ? new File([blob], fileName, { type: 'image/jpeg' }) : undefined;
+        const newImg = {
+          file,
+          dataUrl,
+          name: fileName,
+        };
+        const updated = [...images, newImg];
+        setImages(updated);
+        onImagesReady(updated);
+      }, 'image/jpeg', 0.92);
     }
   };
 
@@ -113,7 +212,8 @@ export const CameraCapture: React.FC<CameraCaptureProps> = ({ onImagesReady, isP
       {isCameraActive && (
         <div style={{ position: 'relative', borderRadius: 'var(--radius-md)', overflow: 'hidden', background: '#000', marginBottom: '1rem' }}>
           <video
-            ref={videoRef}
+            ref={setVideoRef}
+            autoPlay
             playsInline
             muted
             style={{ width: '100%', maxHeight: '380px', objectFit: 'cover' }}
@@ -130,6 +230,7 @@ export const CameraCapture: React.FC<CameraCaptureProps> = ({ onImagesReady, isP
             }}
           >
             <button
+              type="button"
               onClick={capturePhoto}
               className="btn btn-primary"
               style={{
@@ -137,12 +238,13 @@ export const CameraCapture: React.FC<CameraCaptureProps> = ({ onImagesReady, isP
                 height: 56,
                 borderRadius: '50%',
                 padding: 0,
-                boxShadow: '0 0 20px rgba(16, 185, 129, 0.6)',
               }}
+              title="Capture Photo"
             >
               <Camera size={26} />
             </button>
             <button
+              type="button"
               onClick={stopCamera}
               className="btn btn-secondary"
               style={{ borderRadius: 'var(--radius-full)', padding: '0.5rem 1rem' }}
@@ -154,8 +256,8 @@ export const CameraCapture: React.FC<CameraCaptureProps> = ({ onImagesReady, isP
       )}
 
       {cameraError && (
-        <div style={{ background: 'rgba(245, 158, 11, 0.1)', border: '1px solid rgba(245, 158, 11, 0.3)', padding: '0.6rem 0.85rem', borderRadius: 'var(--radius-md)', color: '#fcd34d', fontSize: '0.8rem', marginBottom: '1rem' }}>
-          {cameraError}
+        <div style={{ background: 'rgba(185, 130, 53, 0.1)', border: '1px solid rgba(185, 130, 53, 0.25)', padding: '0.6rem 0.85rem', borderRadius: 'var(--radius-md)', color: 'var(--color-warning)', fontSize: '0.8rem', marginBottom: '1rem' }}>
+          ⚠️ {cameraError}
         </div>
       )}
 
@@ -163,17 +265,19 @@ export const CameraCapture: React.FC<CameraCaptureProps> = ({ onImagesReady, isP
       <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap', marginBottom: '1rem' }}>
         {!isCameraActive && (
           <button
+            type="button"
             onClick={startCamera}
             disabled={isProcessing}
             className="btn btn-secondary"
             style={{ flex: 1, minWidth: '150px' }}
           >
-            <Camera size={18} color="var(--accent-emerald)" />
+            <Camera size={18} color="var(--primary)" />
             Open Device Camera
           </button>
         )}
 
         <button
+          type="button"
           onClick={() => fileInputRef.current?.click()}
           disabled={isProcessing}
           className="btn btn-primary"
@@ -208,7 +312,7 @@ export const CameraCapture: React.FC<CameraCaptureProps> = ({ onImagesReady, isP
                   borderRadius: 'var(--radius-md)',
                   overflow: 'hidden',
                   border: '1px solid var(--border-card)',
-                  background: '#000',
+                  background: 'var(--bg-surface)',
                   aspectRatio: '1',
                 }}
               >
@@ -218,13 +322,14 @@ export const CameraCapture: React.FC<CameraCaptureProps> = ({ onImagesReady, isP
                   style={{ width: '100%', height: '100%', objectFit: 'cover' }}
                 />
                 <button
+                  type="button"
                   onClick={() => removeImage(idx)}
                   disabled={isProcessing}
                   style={{
                     position: 'absolute',
                     top: '4px',
                     right: '4px',
-                    background: 'rgba(0,0,0,0.7)',
+                    background: 'rgba(41, 45, 50, 0.75)',
                     color: '#fff',
                     borderRadius: '50%',
                     width: 22,
@@ -243,7 +348,7 @@ export const CameraCapture: React.FC<CameraCaptureProps> = ({ onImagesReady, isP
                     bottom: 0,
                     left: 0,
                     right: 0,
-                    background: 'rgba(0,0,0,0.6)',
+                    background: 'rgba(41, 45, 50, 0.75)',
                     fontSize: '0.65rem',
                     color: '#fff',
                     padding: '2px 4px',
