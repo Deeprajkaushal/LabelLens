@@ -10,6 +10,12 @@ from app.routers import label, products, compare, food_log, reminders, ingredien
 async def lifespan(app: FastAPI):
     # Initialize SQLite database schema and seed demo products
     init_db()
+    # Warm up OCR engine in background to prevent first-run 90-second latency
+    try:
+        from app.services.ocr_engine import get_ocr_engine
+        get_ocr_engine()
+    except Exception as e:
+        pass
     yield
 
 app = FastAPI(

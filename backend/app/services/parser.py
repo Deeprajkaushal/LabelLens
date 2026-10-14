@@ -26,6 +26,8 @@ def extract_nutrient_from_line(line: str) -> Optional[float]:
     """
     Extracts numerical nutrient value from a table row line.
     Strips percentage RDA numbers (e.g. 4%, 13%, %80) and handles unit columns (e.g. g, mg, or OCR-garbled 6/9).
+    When multiple variety columns are present (e.g. 3 varieties), returns the first variety's honest value
+    without combining varieties into one product.
     """
     cleaned = re.sub(r'\d+(?:\.\d+)?%', '', line)
     cleaned = re.sub(r'%\s*\d+(?:\.\d+)?', '', cleaned)
@@ -33,7 +35,7 @@ def extract_nutrient_from_line(line: str) -> Optional[float]:
     if not nums:
         return None
     # If a single-digit unit column like 5, 6 or 9 is present before the actual value
-    if len(nums) >= 2 and nums[0] in (5.0, 6.0, 9.0):
+    if len(nums) >= 2 and nums[0] in (5.0, 6.0, 9.0) and nums[1] > 0:
         return nums[1]
     return nums[0]
 
@@ -146,7 +148,8 @@ def parse_label_text(raw_text: str) -> AnalyzeLabelResponse:
         # Carbohydrates & Total Sugars on same row
         if "carbohydrate" in lower_line or "carbs" in lower_line:
             all_nums = re.findall(r"\b\d+(?:\.\d+)?\b", lower_line)
-            if len(all_nums) >= 2 and ("sugar" in lower_line or "total" in lower_line):
+            # Only treat second number as sugar if the row explicitly includes sugar/total labels
+            if len(all_nums) >= 2 and ("sugar" in lower_line or ("total" in lower_line and "carbohydrate" not in lower_line)):
                 if nutrients_found["carbohydrates_g"] is None:
                     nutrients_found["carbohydrates_g"] = float(all_nums[0])
                     record_evidence("Carbohydrates (g)", nutrients_found["carbohydrates_g"], "Read from Package", line, "High")
