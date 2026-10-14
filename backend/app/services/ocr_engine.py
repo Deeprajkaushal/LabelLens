@@ -14,7 +14,7 @@ _OCR_ENGINE: Optional[RapidOCR] = None
 def get_ocr_engine() -> RapidOCR:
     global _OCR_ENGINE
     if _OCR_ENGINE is None:
-        _OCR_ENGINE = RapidOCR()
+        _OCR_ENGINE = RapidOCR(det_limit_side_len=1280)
     return _OCR_ENGINE
 
 def correct_image_orientation(image: Image.Image) -> Image.Image:
@@ -57,11 +57,11 @@ def preprocess_image_variants(cv_img: np.ndarray) -> List[Tuple[str, np.ndarray]
 
     return variants
 
-def group_boxes_spatially(ocr_results: List[Any], line_threshold: float = 14.0) -> List[str]:
+def group_boxes_spatially(ocr_results: List[Any], line_threshold: float = 8.0) -> List[str]:
     """
     Groups OCR bounding boxes by vertical proximity (y-coordinate) to reconstruct
     natural table rows. This ensures 'Energy' and '381 kcal' stay on the same line
-    even when detected as separate column text boxes.
+    even when detected as separate column text boxes, without conflating distinct rows.
     """
     if not ocr_results:
         return []
@@ -87,18 +87,19 @@ def group_boxes_spatially(ocr_results: List[Any], line_threshold: float = 14.0) 
 
     lines: List[str] = []
     curr_line: List[Dict[str, Any]] = []
-    curr_y: Optional[float] = None
+    base_y: Optional[float] = None
 
     for b in boxes:
-        if curr_y is None or abs(b["yc"] - curr_y) < line_threshold:
+        if base_y is None or abs(b["yc"] - base_y) <= line_threshold:
             curr_line.append(b)
-            curr_y = b["yc"] if curr_y is None else (curr_y + b["yc"]) / 2.0
+            if base_y is None:
+                base_y = b["yc"]
         else:
             # Sort current row left to right
             curr_line.sort(key=lambda item: item["xc"])
             lines.append(" ".join(item["text"] for item in curr_line))
             curr_line = [b]
-            curr_y = b["yc"]
+            base_y = b["yc"]
 
     if curr_line:
         curr_line.sort(key=lambda item: item["xc"])

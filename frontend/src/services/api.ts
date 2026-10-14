@@ -9,7 +9,7 @@ import {
   IngredientExplanation
 } from '../types';
 
-const API_BASE = import.meta.env.VITE_API_URL || '';
+const API_BASE = (import.meta.env.VITE_API_URL || '').replace(/\/+$/, '');
 
 async function fetchJson<T>(url: string, options?: RequestInit): Promise<T> {
   const fullUrl = `${API_BASE}${url}`;

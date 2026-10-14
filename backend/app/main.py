@@ -2,7 +2,7 @@ import os
 from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from app.config import CORS_ORIGINS, ENABLE_GEMINI_FALLBACK
+from app.config import CORS_ORIGINS, CORS_ORIGIN_REGEX, ENABLE_GEMINI_FALLBACK
 from app.db import init_db
 from app.routers import label, products, compare, food_log, reminders, ingredients
 
@@ -21,11 +21,13 @@ app = FastAPI(
     lifespan=lifespan
 )
 
-# CORS middleware configuration
+# CORS middleware configuration with Vercel origin regex support
+is_wildcard = "*" in CORS_ORIGINS
 app.add_middleware(
     CORSMiddleware,
     allow_origins=CORS_ORIGINS if CORS_ORIGINS else ["*"],
-    allow_credentials=True,
+    allow_origin_regex=CORS_ORIGIN_REGEX if (CORS_ORIGIN_REGEX and not is_wildcard) else None,
+    allow_credentials=not is_wildcard,
     allow_methods=["*"],
     allow_headers=["*"],
 )

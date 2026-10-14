@@ -6,7 +6,9 @@ from typing import Dict, Any, List, Optional
 from app.config import DATABASE_PATH, BASE_DIR
 
 def get_connection() -> sqlite3.Connection:
-    os.makedirs(os.path.dirname(DATABASE_PATH), exist_ok=True)
+    db_dir = os.path.dirname(DATABASE_PATH)
+    if db_dir:
+        os.makedirs(db_dir, exist_ok=True)
     conn = sqlite3.connect(DATABASE_PATH)
     conn.row_factory = sqlite3.Row
     return conn

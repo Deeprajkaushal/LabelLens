@@ -16,10 +16,13 @@ CORS_ORIGINS = [
     if origin.strip()
 ]
 
+# Allow any Vercel preview or production deployment by default regex
+CORS_ORIGIN_REGEX = os.getenv("LABELLENS_CORS_REGEX", r"^https:\/\/.*\.vercel\.app$")
+
 # AI Fallback settings - Strictly disabled by default
 ENABLE_GEMINI_FALLBACK = os.getenv("LABELLENS_ENABLE_GEMINI", "false").lower() in ("true", "1", "yes")
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY", "")
 
-# Server host and port
-HOST = os.getenv("HOST", "127.0.0.1")
+# Server host and port (0.0.0.0 allows container & Render network binding)
+HOST = os.getenv("HOST", "0.0.0.0")
 PORT = int(os.getenv("PORT", "8000"))

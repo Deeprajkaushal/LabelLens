@@ -22,6 +22,21 @@ def extract_number_from_text(text: str) -> Optional[float]:
             pass
     return None
 
+def extract_nutrient_from_line(line: str) -> Optional[float]:
+    """
+    Extracts numerical nutrient value from a table row line.
+    Strips percentage RDA numbers (e.g. 4%, 13%, %80) and handles unit columns (e.g. g, mg, or OCR-garbled 6/9).
+    """
+    cleaned = re.sub(r'\d+(?:\.\d+)?%', '', line)
+    cleaned = re.sub(r'%\s*\d+(?:\.\d+)?', '', cleaned)
+    nums = [float(n) for n in re.findall(r'\b\d+(?:\.\d+)?\b', cleaned)]
+    if not nums:
+        return None
+    # If a single-digit unit column like 5, 6 or 9 is present before the actual value
+    if len(nums) >= 2 and nums[0] in (5.0, 6.0, 9.0):
+        return nums[1]
+    return nums[0]
+
 def parse_label_text(raw_text: str) -> AnalyzeLabelResponse:
     """
     Deterministic rule, regex, and spatial table row parser for packaging labels.
@@ -87,7 +102,7 @@ def parse_label_text(raw_text: str) -> AnalyzeLabelResponse:
         except ValueError:
             pass
 
-    serv_cont_match = re.search(r"(?:No\.?\s*of\s*Servings|Servings\s*per\s*(?:package|container|pack))\s*[:\-]?\s*([0-9]+(?:\.[0-9]+)?)", raw_text, re.IGNORECASE)
+    serv_cont_match = re.search(r"(?:No\.?\s*of\s*Servings(?:\s*(?:per|pr)\s*(?:package|container|pack))?|Servings\s*(?:per|pr)\s*(?:package|container|pack))\s*[:\-]?\s*([0-9]+(?:\.[0-9]+)?)", raw_text, re.IGNORECASE)
     if serv_cont_match:
         try:
             servings_per_container = float(serv_cont_match.group(1))
@@ -117,15 +132,16 @@ def parse_label_text(raw_text: str) -> AnalyzeLabelResponse:
         # Energy / Calories
         if "energy" in lower_line or "calories" in lower_line:
             if nutrients_found["energy_kcal"] is None:
-                m = re.search(r"(?:energy|calories)\s*(?:kcal|cal)?\s*[:\-]?\s*([0-9]+(?:\.[0-9]+)?)", lower_line)
-                if m:
-                    nutrients_found["energy_kcal"] = float(m.group(1))
-                    record_evidence("Energy (kcal)", nutrients_found["energy_kcal"], "Read from Package", line, "High")
-                else:
-                    val = extract_number_from_text(lower_line.replace("energy", "").replace("kcal", ""))
-                    if val and val > 10:
-                        nutrients_found["energy_kcal"] = val
-                        record_evidence("Energy (kcal)", val, "Read from Package", line, "High")
+                cleaned = re.sub(r'\d+(?:\.\d+)?%', '', lower_line)
+                cleaned = re.sub(r'%\s*\d+(?:\.\d+)?', '', cleaned)
+                nums = [float(n) for n in re.findall(r'\b\d+(?:\.\d+)?\b', cleaned)]
+                candidates = [n for n in nums if 20 <= n <= 2500]
+                if candidates:
+                    nutrients_found["energy_kcal"] = candidates[0]
+                    record_evidence("Energy (kcal)", candidates[0], "Read from Package", line, "High")
+                elif nums:
+                    nutrients_found["energy_kcal"] = nums[0]
+                    record_evidence("Energy (kcal)", nums[0], "Read from Package", line, "High")
 
         # Carbohydrates & Total Sugars on same row
         if "carbohydrate" in lower_line or "carbs" in lower_line:
@@ -137,38 +153,40 @@ def parse_label_text(raw_text: str) -> AnalyzeLabelResponse:
                 if nutrients_found["total_sugar_g"] is None:
                     nutrients_found["total_sugar_g"] = float(all_nums[1])
                     record_evidence("Total Sugars (g)", nutrients_found["total_sugar_g"], "Read from Package", line, "High")
-            elif all_nums and nutrients_found["carbohydrates_g"] is None:
-                nutrients_found["carbohydrates_g"] = float(all_nums[0])
-                record_evidence("Carbohydrates (g)", nutrients_found["carbohydrates_g"], "Read from Package", line, "High")
+            elif nutrients_found["carbohydrates_g"] is None:
+                v = extract_nutrient_from_line(lower_line.replace("carbohydrate", "").replace("carbs", ""))
+                if v is not None:
+                    nutrients_found["carbohydrates_g"] = v
+                    record_evidence("Carbohydrates (g)", v, "Read from Package", line, "High")
 
         # Added Sugars (check before standalone Total Sugars)
         if "added sugar" in lower_line or "addedsugar" in lower_line:
             if nutrients_found["added_sugar_g"] is None:
-                m = re.search(r"(?:added\s*sugar[s]?)\s*[:\-]?\s*([0-9]+(?:\.[0-9]+)?)", lower_line)
-                if m:
-                    nutrients_found["added_sugar_g"] = float(m.group(1))
-                    record_evidence("Added Sugars (g)", nutrients_found["added_sugar_g"], "Read from Package", line, "High")
+                v = extract_nutrient_from_line(re.sub(r"added\s*sugar[s]?", "", lower_line))
+                if v is not None:
+                    nutrients_found["added_sugar_g"] = v
+                    record_evidence("Added Sugars (g)", v, "Read from Package", line, "High")
 
         # Standalone Total Sugars
         elif "total sugar" in lower_line or "totalsugar" in lower_line or "sugars" in lower_line or "sugar" in lower_line:
             if nutrients_found["total_sugar_g"] is None and "added" not in lower_line and "carbohydrate" not in lower_line:
-                m = re.search(r"(?:total\s*sugar[s]?|sugar[s]?)\s*[:\-]?\s*([0-9]+(?:\.[0-9]+)?)", lower_line)
-                if m:
-                    nutrients_found["total_sugar_g"] = float(m.group(1))
-                    record_evidence("Total Sugars (g)", nutrients_found["total_sugar_g"], "Read from Package", line, "High")
+                v = extract_nutrient_from_line(re.sub(r"total\s*sugar[s]?|sugar[s]?", "", lower_line))
+                if v is not None:
+                    nutrients_found["total_sugar_g"] = v
+                    record_evidence("Total Sugars (g)", v, "Read from Package", line, "High")
 
         # Dietary Fibre / Fiber
-        if "fiber" in lower_line or "fibre" in lower_line:
+        if "fiber" in lower_line or "fibre" in lower_line or "dietryfiber" in lower_line:
             if nutrients_found["fibre_g"] is None:
-                m = re.search(r"(?:dietary\s*fiber|dietary\s*fibre|fiber|fibre)\s*[:\-]?\s*([0-9]+(?:\.[0-9]+)?)", lower_line)
-                if m:
-                    nutrients_found["fibre_g"] = float(m.group(1))
-                    record_evidence("Dietary Fibre (g)", nutrients_found["fibre_g"], "Read from Package", line, "High")
+                v = extract_nutrient_from_line(re.sub(r"diet(?:ary|ry)?\s*(?:fiber|fibre)|fiber|fibre", "", lower_line))
+                if v is not None:
+                    nutrients_found["fibre_g"] = v
+                    record_evidence("Dietary Fibre (g)", v, "Read from Package", line, "High")
 
         # Saturated Fat & Total Fat
-        if "total fat" in lower_line or "sat fat" in lower_line or "saturated fat" in lower_line or "fat" in lower_line:
+        if "total fat" in lower_line or "totalfat" in lower_line or "sat fat" in lower_line or "satfat" in lower_line or "saturated fat" in lower_line or "fat" in lower_line:
             # Handle row with both Total Fat and Sat Fat: "Total Fat Sat Fat 1.8 0.9"
-            if "sat" in lower_line and "total" in lower_line:
+            if ("sat" in lower_line) and ("total" in lower_line):
                 all_nums = re.findall(r"\b\d+(?:\.\d+)?\b", lower_line)
                 if len(all_nums) >= 2:
                     if nutrients_found["total_fat_g"] is None:
@@ -179,61 +197,46 @@ def parse_label_text(raw_text: str) -> AnalyzeLabelResponse:
                         record_evidence("Saturated Fat (g)", nutrients_found["saturated_fat_g"], "Read from Package", line, "High")
             elif "sat" in lower_line or "saturated" in lower_line:
                 if nutrients_found["saturated_fat_g"] is None:
-                    m = re.search(r"(?:sat(?:urated)?\s*fat)\s*[:\-]?\s*([0-9]+(?:\.[0-9]+)?)", lower_line)
-                    if m:
-                        nutrients_found["saturated_fat_g"] = float(m.group(1))
-                        record_evidence("Saturated Fat (g)", nutrients_found["saturated_fat_g"], "Read from Package", line, "High")
+                    v = extract_nutrient_from_line(re.sub(r"sat(?:urated)?\s*fat|satfat", "", lower_line))
+                    if v is not None:
+                        nutrients_found["saturated_fat_g"] = v
+                        record_evidence("Saturated Fat (g)", v, "Read from Package", line, "High")
             elif "trans" in lower_line:
                 if nutrients_found["trans_fat_g"] is None:
-                    m = re.search(r"(?:trans\s*fat)\s*[:\-]?\s*([0-9]+(?:\.[0-9]+)?)", lower_line)
-                    if m:
-                        nutrients_found["trans_fat_g"] = float(m.group(1))
-                        record_evidence("Trans Fat (g)", nutrients_found["trans_fat_g"], "Read from Package", line, "High")
-            elif "total fat" in lower_line or ("fat" in lower_line and "trans" not in lower_line and "sat" not in lower_line):
+                    v = extract_nutrient_from_line(re.sub(r"trans\s*fat|transfat", "", lower_line))
+                    if v is not None:
+                        nutrients_found["trans_fat_g"] = v
+                        record_evidence("Trans Fat (g)", v, "Read from Package", line, "High")
+            elif "total fat" in lower_line or "totalfat" in lower_line or ("fat" in lower_line and "trans" not in lower_line and "sat" not in lower_line):
                 if nutrients_found["total_fat_g"] is None:
-                    m = re.search(r"(?:total\s*fat|fat)\s*[:\-]?\s*([0-9]+(?:\.[0-9]+)?)", lower_line)
-                    if m:
-                        nutrients_found["total_fat_g"] = float(m.group(1))
-                        record_evidence("Total Fat (g)", nutrients_found["total_fat_g"], "Read from Package", line, "High")
+                    v = extract_nutrient_from_line(re.sub(r"total\s*fat|totalfat|fat", "", lower_line))
+                    if v is not None:
+                        nutrients_found["total_fat_g"] = v
+                        record_evidence("Total Fat (g)", v, "Read from Package", line, "High")
 
         # Cholesterol
         if "cholesterol" in lower_line:
             if nutrients_found["cholesterol_mg"] is None:
-                m = re.search(r"(?:cholesterol)\s*(?:mg)?\s*[:\-]?\s*([0-9]+(?:\.[0-9]+)?)", lower_line)
-                if m:
-                    nutrients_found["cholesterol_mg"] = float(m.group(1))
-                    record_evidence("Cholesterol (mg)", nutrients_found["cholesterol_mg"], "Read from Package", line, "High")
-                else:
-                    all_nums = re.findall(r"\b\d+(?:\.\d+)?\b", lower_line)
-                    if all_nums:
-                        nutrients_found["cholesterol_mg"] = float(all_nums[0])
-                        record_evidence("Cholesterol (mg)", nutrients_found["cholesterol_mg"], "Read from Package", line, "High")
+                v = extract_nutrient_from_line(re.sub(r"cholesterol", "", lower_line))
+                if v is not None:
+                    nutrients_found["cholesterol_mg"] = v
+                    record_evidence("Cholesterol (mg)", v, "Read from Package", line, "High")
 
         # Sodium
         if "sodium" in lower_line:
             if nutrients_found["sodium_mg"] is None:
-                m = re.search(r"(?:sodium)\s*(?:mg)?\s*[:\-]?\s*([0-9]+(?:\.[0-9]+)?)", lower_line)
-                if m:
-                    nutrients_found["sodium_mg"] = float(m.group(1))
-                    record_evidence("Sodium (mg)", nutrients_found["sodium_mg"], "Read from Package", line, "High")
-                else:
-                    all_nums = re.findall(r"\b\d+(?:\.\d+)?\b", lower_line)
-                    if all_nums:
-                        nutrients_found["sodium_mg"] = float(all_nums[0])
-                        record_evidence("Sodium (mg)", nutrients_found["sodium_mg"], "Read from Package", line, "High")
+                v = extract_nutrient_from_line(re.sub(r"sodium", "", lower_line))
+                if v is not None:
+                    nutrients_found["sodium_mg"] = v
+                    record_evidence("Sodium (mg)", v, "Read from Package", line, "High")
 
         # Protein
         if "protein" in lower_line:
             if nutrients_found["protein_g"] is None:
-                m = re.search(r"(?:protein[s]?)\s*[:\-]?\s*([0-9]+(?:\.[0-9]+)?)", lower_line)
-                if m:
-                    nutrients_found["protein_g"] = float(m.group(1))
-                    record_evidence("Protein (g)", nutrients_found["protein_g"], "Read from Package", line, "High")
-                else:
-                    val = extract_number_from_text(lower_line.replace("protein", "").replace("g", ""))
-                    if val is not None and val < 100:
-                        nutrients_found["protein_g"] = val
-                        record_evidence("Protein (g)", val, "Read from Package", line, "High")
+                v = extract_nutrient_from_line(re.sub(r"protein[s]?", "", lower_line))
+                if v is not None and v < 100:
+                    nutrients_found["protein_g"] = v
+                    record_evidence("Protein (g)", v, "Read from Package", line, "High")
 
     # Mark missing nutrients honestly in evidence audit trail
     for nut_key, display_label in [
