@@ -1,0 +1,30 @@
+# Dependencies
+node_modules/
+backend/venv/
+venv/
+.env
+
+# Build outputs
+dist/
+build/
+*.egg-info/
+
+# Python cache & artifacts
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Local databases & logs
+*.db
+*.sqlite
+*.sqlite3
+*.log
+
+# OS & Editor files
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
