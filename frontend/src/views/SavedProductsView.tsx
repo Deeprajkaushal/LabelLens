@@ -131,31 +131,31 @@ export const SavedProductsView: React.FC<SavedProductsViewProps> = ({
                   <button
                     onClick={(e) => handleToggleFav(prod.id, e)}
                     style={{
-                      background: 'var(--bg-surface)',
+                      background: 'rgba(255,255,255,0.08)',
                       borderRadius: '50%',
                       width: 32,
                       height: 32,
                       display: 'flex',
                       alignItems: 'center',
                       justifyContent: 'center',
-                      color: prod.is_favorite ? 'var(--color-warning)' : 'var(--text-muted)',
+                      color: prod.is_favorite ? 'var(--accent-amber)' : 'var(--text-muted)',
                     }}
                     title="Toggle Favorite"
                   >
-                    <Star size={16} fill={prod.is_favorite ? 'var(--color-warning)' : 'none'} />
+                    <Star size={16} fill={prod.is_favorite ? 'var(--accent-amber)' : 'none'} />
                   </button>
 
                   <button
                     onClick={(e) => handleDelete(prod.id, e)}
                     style={{
-                      background: 'rgba(181, 71, 71, 0.1)',
+                      background: 'rgba(244,63,94,0.1)',
                       borderRadius: '50%',
                       width: 32,
                       height: 32,
                       display: 'flex',
                       alignItems: 'center',
                       justifyContent: 'center',
-                      color: 'var(--color-error)',
+                      color: '#f43f5e',
                     }}
                     title="Delete Product"
                   >

@@ -18,12 +18,12 @@ export function getUserAllergenPreferences(): string[] {
   try {
     const raw = localStorage.getItem(PREFS_KEY);
     if (raw) return JSON.parse(raw);
-  } catch {}
+  } catch { }
   return ['Wheat / Gluten', 'Peanuts', 'Milk / Dairy'];
 }
 
 export function saveUserAllergenPreferences(prefs: string[]): void {
   try {
     localStorage.setItem(PREFS_KEY, JSON.stringify(prefs));
-  } catch {}
+  } catch { }
 }

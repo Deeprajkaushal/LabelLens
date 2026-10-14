@@ -79,11 +79,11 @@ export const PortionSlider: React.FC<PortionSliderProps> = ({ product, onLogMeal
   }
 
   return (
-    <div className="glass-card">
+    <div className="glass-card" style={{ background: 'linear-gradient(180deg, rgba(17, 24, 39, 0.9) 0%, rgba(15, 23, 42, 0.8) 100%)' }}>
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1rem' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-          <div style={{ width: 34, height: 34, borderRadius: '50%', background: 'rgba(36, 91, 74, 0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-            <Flame size={20} color="var(--primary)" />
+          <div style={{ width: 34, height: 34, borderRadius: '50%', background: 'rgba(245, 158, 11, 0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <Flame size={20} color="#f59e0b" />
           </div>
           <div>
             <h3 style={{ fontSize: '1.05rem', fontWeight: 700 }}>{t.calculatePortion}</h3>
@@ -95,7 +95,7 @@ export const PortionSlider: React.FC<PortionSliderProps> = ({ product, onLogMeal
 
         {calcResult && (
           <div style={{ textAlign: 'right' }}>
-            <div style={{ fontSize: '1.75rem', fontWeight: 800, color: 'var(--primary)', lineHeight: 1 }}>
+            <div style={{ fontSize: '1.75rem', fontWeight: 800, color: '#f59e0b', lineHeight: 1 }}>
               {calcResult.energy_kcal.toFixed(1)} <span style={{ fontSize: '0.9rem', color: 'var(--text-secondary)' }}>kcal</span>
             </div>
             <span style={{ fontSize: '0.72rem', color: 'var(--text-muted)' }}>in {portion} {unit}</span>
@@ -193,7 +193,7 @@ export const PortionSlider: React.FC<PortionSliderProps> = ({ product, onLogMeal
           </div>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(110px, 1fr))', gap: '0.5rem' }}>
             {calcResult.nutrients.map((n, idx) => (
-              <div key={idx} style={{ background: 'var(--bg-card)', padding: '0.4rem 0.6rem', borderRadius: 'var(--radius-sm)', border: '1px solid var(--border-subtle)' }}>
+              <div key={idx} style={{ background: 'rgba(0,0,0,0.2)', padding: '0.4rem 0.6rem', borderRadius: 'var(--radius-sm)' }}>
                 <div style={{ fontSize: '0.7rem', color: 'var(--text-muted)' }}>{n.nutrient_name}</div>
                 <div style={{ fontSize: '0.9rem', fontWeight: 700, color: 'var(--text-primary)' }}>
                   {n.portion_value} {n.unit}
@@ -218,7 +218,7 @@ export const PortionSlider: React.FC<PortionSliderProps> = ({ product, onLogMeal
           >
             {logged ? (
               <>
-                <Check size={14} color="var(--primary)" />
+                <Check size={14} color="var(--accent-emerald)" />
                 Added to Log!
               </>
             ) : (

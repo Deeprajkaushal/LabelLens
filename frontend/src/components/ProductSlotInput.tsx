@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect, useCallback } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import {
   Camera,
   Upload,
@@ -45,7 +45,6 @@ export const ProductSlotInput: React.FC<ProductSlotProps> = ({
   const [isCameraActive, setIsCameraActive] = useState<boolean>(false);
   const [cameraError, setCameraError] = useState<string | null>(null);
   const videoRef = useRef<HTMLVideoElement | null>(null);
-  const streamRef = useRef<MediaStream | null>(null);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
 
   // Manual Edit / Review State
@@ -64,124 +63,48 @@ export const ProductSlotInput: React.FC<ProductSlotProps> = ({
     nutrition_basis: 'per 100g',
   });
 
-  const stopCamera = useCallback(() => {
-    if (streamRef.current) {
-      streamRef.current.getTracks().forEach((track) => {
-        try {
-          track.stop();
-        } catch (e) {
-          console.warn('Error stopping track:', e);
-        }
-      });
-      streamRef.current = null;
-    }
-    if (videoRef.current) {
-      videoRef.current.srcObject = null;
-    }
-    setIsCameraActive(false);
-  }, []);
-
-  // Stop camera on unmount or tab switch / page hidden
+  // Stop camera on unmount or tab switch
   useEffect(() => {
-    const handleVisibilityChange = () => {
-      if (document.hidden) {
-        stopCamera();
-      }
-    };
-    document.addEventListener('visibilitychange', handleVisibilityChange);
     return () => {
-      document.removeEventListener('visibilitychange', handleVisibilityChange);
       stopCamera();
     };
-  }, [stopCamera]);
-
-  // Video element callback ref to attach stream directly upon element mounting
-  const setVideoRef = useCallback((node: HTMLVideoElement | null) => {
-    videoRef.current = node;
-    if (node && streamRef.current) {
-      node.srcObject = streamRef.current;
-      node.play().catch((err) => {
-        console.warn('Camera video playback error:', err);
-      });
-    }
   }, []);
 
   const startCamera = async () => {
     setCameraError(null);
-
-    // 1. Check for secure context
-    if (typeof window !== 'undefined' && !window.isSecureContext && window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1') {
-      setCameraError('Camera access requires HTTPS in production. Please use file upload or switch to HTTPS.');
-      return;
-    }
-
-    // 2. Check for browser mediaDevices support
-    if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-      setCameraError('Camera API is not supported by your browser. Please use the image upload option.');
-      return;
-    }
-
-    if (streamRef.current) {
-      stopCamera();
-    }
-
     try {
-      let stream: MediaStream;
-      try {
-        stream = await navigator.mediaDevices.getUserMedia({
-          video: { facingMode: { ideal: 'environment' }, width: { ideal: 1920 }, height: { ideal: 1080 } },
-          audio: false,
-        });
-      } catch (constraintErr: any) {
-        if (constraintErr.name === 'OverconstrainedError' || constraintErr.name === 'ConstraintNotSatisfiedError') {
-          stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: false });
-        } else {
-          throw constraintErr;
-        }
-      }
-
-      streamRef.current = stream;
+      const stream = await navigator.mediaDevices.getUserMedia({
+        video: { facingMode: 'environment', width: { ideal: 1920 }, height: { ideal: 1080 } },
+      });
       setIsCameraActive(true);
       if (videoRef.current) {
         videoRef.current.srcObject = stream;
-        videoRef.current.play().catch(console.warn);
+        videoRef.current.play();
       }
     } catch (err: any) {
       console.warn(`Camera access failed for Slot ${slotId}:`, err);
-      stopCamera();
-      if (err.name === 'NotAllowedError' || err.name === 'PermissionDeniedError') {
-        setCameraError('Camera permission was denied. Please allow camera permissions in browser settings.');
-      } else if (err.name === 'NotFoundError' || err.name === 'DevicesNotFoundError') {
-        setCameraError('No camera found on this device. Please connect a camera or use file upload.');
-      } else if (err.name === 'NotReadableError' || err.name === 'TrackStartError') {
-        setCameraError('Camera is already in use by another application. Please close other camera apps and retry.');
-      } else if (err.name === 'OverconstrainedError' || err.name === 'ConstraintNotSatisfiedError') {
-        setCameraError('The requested camera settings could not be satisfied. Please use file upload.');
-      } else if (err.name === 'SecurityError') {
-        setCameraError('Camera access requires HTTPS in production. Please use file upload.');
-      } else {
-        setCameraError(err.message || 'Camera access not granted or not available. Please use image upload.');
-      }
+      setCameraError('Camera access not granted or not available. Please use image upload.');
+      setIsCameraActive(false);
     }
+  };
+
+  const stopCamera = () => {
+    if (videoRef.current && videoRef.current.srcObject) {
+      const stream = videoRef.current.srcObject as MediaStream;
+      stream.getTracks().forEach((track) => track.stop());
+      videoRef.current.srcObject = null;
+    }
+    setIsCameraActive(false);
   };
 
   const capturePhoto = () => {
     if (!videoRef.current) return;
-    const video = videoRef.current;
-    const width = video.videoWidth || 1280;
-    const height = video.videoHeight || 720;
-
-    if (width === 0 || height === 0) {
-      setCameraError('Camera stream is still initializing. Please wait a moment and try capturing again.');
-      return;
-    }
-
     const canvas = document.createElement('canvas');
-    canvas.width = width;
-    canvas.height = height;
+    canvas.width = videoRef.current.videoWidth || 1280;
+    canvas.height = videoRef.current.videoHeight || 720;
     const ctx = canvas.getContext('2d');
     if (ctx) {
-      ctx.drawImage(video, 0, 0, width, height);
+      ctx.drawImage(videoRef.current, 0, 0, canvas.width, canvas.height);
       canvas.toBlob((blob) => {
         if (!blob) return;
         const file = new File([blob], `Slot-${slotId}-Capture-${images.length + 1}.jpg`, { type: 'image/jpeg' });
@@ -324,7 +247,7 @@ export const ProductSlotInput: React.FC<ProductSlotProps> = ({
               height: 28,
               borderRadius: '50%',
               background: accentColor,
-              color: '#fff',
+              color: '#000',
               fontWeight: 800,
               fontSize: '0.9rem',
               display: 'flex',
@@ -369,7 +292,7 @@ export const ProductSlotInput: React.FC<ProductSlotProps> = ({
         <button
           onClick={() => {
             setActiveTab('camera');
-            stopCamera();
+            startCamera();
           }}
           className={`btn btn-sm ${activeTab === 'camera' ? 'btn-primary' : ''}`}
           style={{
@@ -540,8 +463,7 @@ export const ProductSlotInput: React.FC<ProductSlotProps> = ({
           {isCameraActive ? (
             <div style={{ position: 'relative', borderRadius: 'var(--radius-md)', overflow: 'hidden', background: '#000', marginBottom: '0.75rem' }}>
               <video
-                ref={setVideoRef}
-                autoPlay
+                ref={videoRef}
                 playsInline
                 muted
                 style={{ width: '100%', maxHeight: '240px', objectFit: 'cover' }}
@@ -558,7 +480,6 @@ export const ProductSlotInput: React.FC<ProductSlotProps> = ({
                 }}
               >
                 <button
-                  type="button"
                   onClick={capturePhoto}
                   className="btn btn-primary btn-sm"
                   style={{
@@ -566,13 +487,13 @@ export const ProductSlotInput: React.FC<ProductSlotProps> = ({
                     height: 44,
                     borderRadius: '50%',
                     padding: 0,
+                    boxShadow: '0 0 15px rgba(16, 185, 129, 0.5)',
                   }}
                   title="Capture Photo"
                 >
                   <Camera size={20} />
                 </button>
                 <button
-                  type="button"
                   onClick={stopCamera}
                   className="btn btn-secondary btn-sm"
                   style={{ padding: '0.25rem 0.75rem', fontSize: '0.75rem' }}
@@ -583,7 +504,7 @@ export const ProductSlotInput: React.FC<ProductSlotProps> = ({
             </div>
           ) : (
             <div style={{ textAlign: 'center', padding: '1rem', background: 'var(--bg-input)', borderRadius: 'var(--radius-md)' }}>
-              <button type="button" onClick={startCamera} className="btn btn-secondary btn-sm">
+              <button onClick={startCamera} className="btn btn-secondary btn-sm">
                 <Camera size={16} />
                 Start Camera for Product {slotId}
               </button>
@@ -591,8 +512,8 @@ export const ProductSlotInput: React.FC<ProductSlotProps> = ({
           )}
 
           {cameraError && (
-            <div style={{ fontSize: '0.78rem', color: 'var(--color-warning)', marginTop: '0.4rem' }}>
-              ⚠️ {cameraError}
+            <div style={{ fontSize: '0.78rem', color: '#fcd34d', marginTop: '0.4rem' }}>
+              {cameraError}
             </div>
           )}
 

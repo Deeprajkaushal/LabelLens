@@ -29,11 +29,11 @@ export const AllergenAlerts: React.FC<AllergenAlertsProps> = ({
   }
 
   return (
-    <div className="glass-card" style={{ borderLeft: '4px solid var(--color-error)' }}>
+    <div className="glass-card" style={{ borderLeft: '4px solid var(--accent-rose)' }}>
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.75rem' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-          <AlertTriangle size={18} color="var(--color-error)" />
-          <h3 style={{ fontSize: '1rem', fontWeight: 700, color: 'var(--color-error)' }}>
+          <AlertTriangle size={18} color="var(--accent-rose)" />
+          <h3 style={{ fontSize: '1rem', fontWeight: 700, color: '#fca5a5' }}>
             {t.allergenAlerts} ({allergens.length})
           </h3>
         </div>
@@ -46,14 +46,14 @@ export const AllergenAlerts: React.FC<AllergenAlertsProps> = ({
             <div
               key={idx}
               style={{
-                background: isUserConcern ? 'rgba(181, 71, 71, 0.1)' : 'var(--bg-surface)',
-                border: isUserConcern ? '1px solid rgba(181, 71, 71, 0.25)' : '1px solid var(--border-subtle)',
+                background: isUserConcern ? 'rgba(244, 63, 94, 0.15)' : 'var(--bg-surface)',
+                border: isUserConcern ? '1px solid rgba(244, 63, 94, 0.4)' : '1px solid var(--border-subtle)',
                 borderRadius: 'var(--radius-md)',
                 padding: '0.6rem 0.85rem',
               }}
             >
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.2rem' }}>
-                <span style={{ fontWeight: 700, fontSize: '0.9rem', color: isUserConcern ? 'var(--color-error)' : 'var(--text-primary)' }}>
+                <span style={{ fontWeight: 700, fontSize: '0.9rem', color: isUserConcern ? '#fecdd3' : 'var(--text-primary)' }}>
                   {match.allergen}
                   {isUserConcern && (
                     <span className="badge badge-danger" style={{ marginLeft: '0.5rem', fontSize: '0.65rem' }}>

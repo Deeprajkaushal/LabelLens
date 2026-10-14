@@ -95,13 +95,13 @@ export const SettingsView: React.FC = () => {
                   alignItems: 'center',
                   gap: '0.6rem',
                   padding: '0.65rem 0.85rem',
-                  background: isChecked ? 'rgba(181, 71, 71, 0.1)' : 'var(--bg-surface)',
-                  border: isChecked ? '1px solid rgba(181, 71, 71, 0.3)' : '1px solid var(--border-subtle)',
+                  background: isChecked ? 'rgba(244, 63, 94, 0.15)' : 'var(--bg-surface)',
+                  border: isChecked ? '1px solid rgba(244, 63, 94, 0.4)' : '1px solid var(--border-subtle)',
                   borderRadius: 'var(--radius-md)',
                   cursor: 'pointer',
                   fontSize: '0.85rem',
                   fontWeight: isChecked ? 700 : 500,
-                  color: isChecked ? 'var(--color-error)' : 'var(--text-primary)',
+                  color: isChecked ? '#fecdd3' : 'var(--text-primary)',
                   transition: 'all 0.15s ease',
                 }}
               >
@@ -109,7 +109,7 @@ export const SettingsView: React.FC = () => {
                   type="checkbox"
                   checked={isChecked}
                   readOnly
-                  style={{ accentColor: 'var(--color-error)' }}
+                  style={{ accentColor: '#f43f5e' }}
                 />
                 <span>{item}</span>
               </label>
@@ -119,9 +119,9 @@ export const SettingsView: React.FC = () => {
       </div>
 
       {/* Local-First Architecture Guarantee */}
-      <div className="glass-card">
+      <div className="glass-card" style={{ background: 'rgba(15, 23, 42, 0.6)' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem' }}>
-          <Cpu size={18} color="var(--primary)" />
+          <Cpu size={18} color="var(--accent-emerald)" />
           <h3 style={{ fontSize: '1rem', fontWeight: 700 }}>{t.aiStatusTitle}</h3>
         </div>
         <p style={{ fontSize: '0.82rem', color: 'var(--text-secondary)', lineHeight: 1.6 }}>

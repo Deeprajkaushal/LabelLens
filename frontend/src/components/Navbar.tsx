@@ -88,7 +88,7 @@ export const Navbar: React.FC<NavbarProps> = ({
             >
               <div
                 className="status-dot"
-                style={{ backgroundColor: isBackendConnected ? 'var(--color-success)' : 'var(--secondary)' }}
+                style={{ backgroundColor: isBackendConnected ? 'var(--accent-emerald)' : '#06b6d4' }}
               />
               <span>{isBackendConnected ? 'Backend Live' : 'Local Engine'}</span>
             </div>
@@ -98,7 +98,7 @@ export const Navbar: React.FC<NavbarProps> = ({
               className="lang-toggle"
               title="Switch Language / भाषा बदलें"
             >
-              <Languages size={15} color="var(--primary)" />
+              <Languages size={15} color="var(--accent-emerald)" />
               <span>{language === 'en' ? 'हिन्दी' : 'EN'}</span>
             </button>
           </div>

@@ -123,18 +123,18 @@ export const IngredientExplorerView: React.FC = () => {
 
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '0.75rem', marginBottom: '0.75rem' }}>
               <div style={{ background: 'var(--bg-surface)', padding: '0.75rem', borderRadius: 'var(--radius-md)', fontSize: '0.82rem', lineHeight: 1.5 }}>
-                <strong style={{ color: 'var(--secondary)' }}>English Explanation:</strong>
+                <strong style={{ color: '#38bdf8' }}>English Explanation:</strong>
                 <p style={{ marginTop: '0.2rem' }}>{item.explanation_en}</p>
               </div>
 
               <div style={{ background: 'var(--bg-surface)', padding: '0.75rem', borderRadius: 'var(--radius-md)', fontSize: '0.85rem', lineHeight: 1.5 }}>
-                <strong style={{ color: 'var(--primary)' }}>हिन्दी विवरण:</strong>
+                <strong style={{ color: '#34d399' }}>हिन्दी विवरण:</strong>
                 <p style={{ marginTop: '0.2rem' }}>{item.explanation_hi}</p>
               </div>
             </div>
 
             {item.caution && (
-              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', background: 'rgba(185, 130, 53, 0.1)', border: '1px solid rgba(185, 130, 53, 0.25)', padding: '0.5rem 0.75rem', borderRadius: 'var(--radius-sm)', color: 'var(--color-warning)', fontSize: '0.78rem', marginBottom: '0.5rem' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', background: 'rgba(245, 158, 11, 0.12)', border: '1px solid rgba(245, 158, 11, 0.25)', padding: '0.5rem 0.75rem', borderRadius: 'var(--radius-sm)', color: '#fcd34d', fontSize: '0.78rem', marginBottom: '0.5rem' }}>
                 <AlertTriangle size={15} />
                 <span><strong>{t.cautionLabel}:</strong> {item.caution}</span>
               </div>
